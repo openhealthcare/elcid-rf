@@ -12,7 +12,20 @@ WARDS_TO_EXCLUDE_FROM_SIDEROOMS = [
     'BA-Test',
     'BA-Paed Test',
     'zzzBA-Maple',
-
+    #3 x requested by team 10/04/24
+    'Mortuary',
+    'MATDU',
+    'MDTU'
+    # Requested by team 11/04/24
+    'Outsourcing',
+    'MORT',
+    'OPAT 11 WEST',
+    'Haemophilia Ward',
+    'EU',
+    'DERM UNIT',
+    '12 EAST A PO',
+    '8 SOUTH',
+    '7 EAST B',
 ]
 
 WARDS_TO_EXCLUDE_FROM_LIST = [
@@ -74,6 +87,18 @@ WARDS_TO_EXCLUDE_FROM_LIST = [
     'zzzFetaLink Virtual Devices',
     'RF-MORT',
     'zzzBA-Maple',
+
+    'CF-Nuffield',
+    'CF-Napier',
+    'CF-Mutual Aid',
+    'CF-Mortuary',
+    'CF-Highgate',
+    'CF-Test',
+    'CF-OMF',
+    'CF-N Middlesex',
+    'CF-Outsc UCLH',
+    'CF-OutscHW',
+    'CF-RNOH',
 ]
 
 HOSPITAL_NAMES = {
