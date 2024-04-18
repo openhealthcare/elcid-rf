@@ -634,7 +634,7 @@ class AbstractTBObservation(fields.Model):
 
     # the value of Observation.observation_name
     # used by this observation
-    OBSERVATION_NAME = None
+    OBSERVATION_NAMES = []
     # the lab test names that have this
     TEST_NAMES = []
 
@@ -730,11 +730,22 @@ class AbstractTBObservation(fields.Model):
 
 
 class AFBSmear(AbstractTBObservation):
-    OBSERVATION_NAME = 'AFB Smear'
+
+    OBSERVATION_NAMES = [
+        'AFB Smear',
+        'Auramine film'
+    ]
+
     TEST_NAMES = [
         'AFB : CULTURE',
         'AFB : EARLY MORN. URINE',
-        'AFB BLOOD CULTURE'
+        'AFB BLOOD CULTURE',
+        'AFB CULTURE',
+    ]
+
+    NEGATIVE_VALUES = [
+        "AAFB not seen",
+        "AFB NOT seen",
     ]
 
     # stored in obs name 'Date of AFB Microscopy'
@@ -747,7 +758,11 @@ class AFBSmear(AbstractTBObservation):
             "AAFB + Seen",
             "AAFB 2+ Seen",
             "AAFB 3+ Seen",
-            "AAFB 4+ Seen"
+            "AAFB 4+ Seen",
+            "AFB seen (1+)",
+            "AFB seen (2+)",
+            "AFB seen (3+)",
+            "AFB seen (4+)",
         ]
         for psw in positive_starts_with:
             if obs_value.startswith(psw):
@@ -758,7 +773,10 @@ class AFBSmear(AbstractTBObservation):
     @classmethod
     def is_negative(cls, obs):
         obs_value = obs.observation_value
-        return obs_value.startswith("AAFB not seen")
+        for val in cls.NEGATIVE_VALUES:
+            if obs_value.startswith(val):
+                return True
+        return False
 
     @classmethod
     def populate_from_observation(cls, obs):
@@ -780,11 +798,19 @@ class AFBSmear(AbstractTBObservation):
 
 
 class AFBCulture(AbstractTBObservation):
-    OBSERVATION_NAME = 'TB: Culture Result'
+
+    OBSERVATION_NAMES = [
+        'TB: Culture Result',
+        'AFB Isolate(s)',
+    ]
+
     TEST_NAMES = [
         'AFB : CULTURE',
         'AFB : EARLY MORN. URINE',
-        'AFB BLOOD CULTURE'
+        'AFB BLOOD CULTURE',
+        'AFB CULTURE',
+        'AFB URINE',
+        'MYCOBACTERIA BLOOD CULTURE'
     ]
 
     # what is stored in 'Date of AFB Culture Result'
@@ -796,7 +822,11 @@ class AFBCulture(AbstractTBObservation):
 
     @classmethod
     def is_positive(cls, obs):
-        return obs.observation_value.startswith("1")
+        pos = ["1", "~1"]
+        for val in pos:
+            if obs.observation_value.startswith(val):
+                return True
+        return False
 
     @classmethod
     def is_negative(cls, obs):
@@ -851,7 +881,7 @@ class AFBCulture(AbstractTBObservation):
 
 
 class AFBRefLab(AbstractTBObservation):
-    OBSERVATION_NAME = 'TB Ref. Lab. Culture result'
+    OBSERVATION_NAMES = ['TB Ref. Lab. Culture result']
     TEST_NAMES = [
         'AFB : CULTURE',
         'AFB : EARLY MORN. URINE',
@@ -919,26 +949,41 @@ class AFBRefLab(AbstractTBObservation):
 
 
 class TBPCR(AbstractTBObservation):
-    OBSERVATION_NAME = 'TB PCR'
-    TEST_NAMES = ['TB PCR TEST']
+    OBSERVATION_NAMES = ['TB PCR']
+    TEST_NAMES = [
+        'TB PCR TEST',
+        'TB PCR'
+    ]
+
+    NEGATIVE_VALUES = [
+        'Not Detected',
+        "PCR to detect M.tuberculosis complex was~NEGATIVE",
+        "PCR to detect M.tuberculosis complex was ~ NEGATIVE",
+        "TB PCR (GeneXpert) Negative"
+    ]
+
+    POSITIVE_VALUES = [
+        "The PCR to detect M.tuberculosis complex was~POSITIVE",
+        "The PCR to detect M.tuberculosis complex was ~ POSITIVE",
+        "TB PCR (GeneXpert) Positive",
+        "DETECTED",
+    ]
 
     @classmethod
     def is_negative(cls, obs):
         obs_val = obs.observation_value
-        if "PCR to detect M.tuberculosis complex was~NEGATIVE" in obs_val:
-            return True
-        if "PCR to detect M.tuberculosis complex was ~ NEGATIVE" in obs_val:
-            return True
-        return obs_val == "TB PCR (GeneXpert) Negative"
+        for val in cls.NEGATIVE_VALUES:
+            if val == obs_val:
+                return True
+        return False
 
     @classmethod
     def is_positive(cls, obs):
         obs_val = obs.observation_value
-        if "The PCR to detect M.tuberculosis complex was~POSITIVE" in obs_val:
-            return True
-        if "The PCR to detect M.tuberculosis complex was ~ POSITIVE" in obs_val:
-            return True
-        return obs_val == "TB PCR (GeneXpert) Positive"
+        for val in cls.POSITIVE_VALUES:
+            if val == obs_val:
+                return True
+        return False
 
     def display_value(self):
         # to_remove = "This does not exclude a diagnosis of tuberculosis."
