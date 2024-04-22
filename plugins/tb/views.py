@@ -614,14 +614,15 @@ class MDTList(LoginRequiredMixin, TemplateView):
             "positive": True
         }
         exclude_args = {}
+        exclude_args_old_labnumbers = {}
 
         # RFH lab numbers are changng, and now may contain
         # either a K/L or begin with a 'site code' - 27/37
         if self.kwargs["site"] == self.BARNET:
-            exclude_args["lab_number__contains"] = "L"
+            exclude_args_old_labnumbers["lab_number__contains"] = "L"
             exclude_args["lab_number__startswith"] = "27"
         else:
-            exclude_args["lab_number__contains"] = "K"
+            exclude_args_old_labnumbers["lab_number__contains"] = "K"
             exclude_args["lab_number__startswith"] = "37"
 
         patient_ids = set()
@@ -630,6 +631,8 @@ class MDTList(LoginRequiredMixin, TemplateView):
                 **filter_args
             ).exclude(
                 **exclude_args
+            ).exclude(
+                **exclude_args_old_labnumbers
             ).values_list('patient_id', flat=True))
         return Patient.objects.filter(
             id__in=patient_ids
