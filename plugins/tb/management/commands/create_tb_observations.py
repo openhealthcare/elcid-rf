@@ -24,7 +24,7 @@ def populate_tests():
         labtests_tb_obs_qs = labtests_obs_qs.filter(
             test__test_name__in=tb_obs_model.TEST_NAMES,
         ).filter(
-            observation_name=tb_obs_model.OBSERVATION_NAME
+            observation_name__in=tb_obs_model.OBSERVATION_NAMES
         ).select_related(
             'test'
         )
@@ -41,7 +41,7 @@ def populate_tests():
             new_instances.append(tb_obs_model.populate_from_observation(obs))
         tb_obs_model.objects.bulk_create(new_instances)
         logger.info(
-            f"Creating TB observations: created {len(new_instances)} {tb_obs_model.OBSERVATION_NAME}"
+            f"Creating TB observations: created {len(new_instances)} {tb_obs_model.OBSERVATION_NAMES}"
         )
 
 
