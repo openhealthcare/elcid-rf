@@ -219,6 +219,10 @@ class LineRemovalReason(lookuplists.LookupList):
     pass
 
 
+class LineInsertedBy(lookuplists.LookupList):
+    pass
+
+
 class Location(PreviousMRN, EpisodeSubrecord):
     _is_singleton = True
     _icon = 'fa fa-map-marker'
