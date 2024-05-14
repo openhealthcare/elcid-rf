@@ -32,13 +32,11 @@
   {% datepicker field="OPATRecord.opat_end_date" %}
   {% select field="OPATRecord.administration" %}
   {% select field="OPATRecord.supply" %}
-  {% datepicker field="OPATRecord.outcome_early_date" %}
-  {% select field="OPATRecord.outcome_early" %}
-  <section ng-show="editing.opat_end_date">
+  {% select field="OPATRecord.complications" %}
+  <section ng-show="editing.opat_record.opat_end_date">
     {% datepicker field="OPATRecord.outcome_one_year_date" %}
     {% select field="OPATRecord.outcome_one_year" %}
-    {% datepicker field="OPATRecord.outcome_two_years_date" %}
-    {% select field="OPATRecord.outcome_two_years" %}
+    {% select field="OPATRecord.treatment_outcome" %}
   </section>
 </div>
 <span ng-show="editing.opat_record.accepted === false">

@@ -18,12 +18,27 @@ class OPATRecord(EpisodeSubrecord):
         verbose_name = 'OPAT'
 
     OUTCOME_CHOICES = enum(
+        'Achieved treatment aim (uncomplicated)',
+        'Treatment aim attained (complicated)',
+        'Treatment aim not attained',
+        'Indeterminate',
+        'Died (non OPAT related)',
+        'Died (OPAT related)',
+        'Readmitted',
+        'Transfer to another provider'
+    )
+
+    TREATMENT_OUTCOME_CHOICES = enum(
         'Cured',
-        'Improved - off antibiotics',
-        'Improved - on suppression',
-        'Improved - further treatment planned',
-        'Failed',
-        'Indeterminate'
+        'Improved',
+        'Moved to palliative'
+    )
+
+    COMPLICATIONS_CHOICES = enum(
+        'Allergy',
+        'Liver impairment',
+        'Renal impairment',
+        'Other'
     )
 
     ADMINISTRATION_CHOICES = enum(
@@ -48,12 +63,10 @@ class OPATRecord(EpisodeSubrecord):
     opat_end_date          = models.DateField(blank=True, null=True)
     administration         = models.CharField(blank=True, null=True, max_length=200, choices=ADMINISTRATION_CHOICES)
     supply                 = models.CharField(blank=True, null=True, max_length=200, choices=SUPPLY_CHOICES)
-    outcome_early          = models.CharField(blank=True, null=True, max_length=200, choices=OUTCOME_CHOICES)
-    outcome_early_date     = models.DateField(blank=True, null=True)
     outcome_one_year       = models.CharField(blank=True, null=True, max_length=200, choices=OUTCOME_CHOICES)
+    treatment_outcome      = models.CharField(blank=True, null=True, max_length=200, choices=TREATMENT_OUTCOME_CHOICES)
     outcome_one_year_date  = models.DateField(blank=True, null=True)
-    outcome_two_years      = models.CharField(blank=True, null=True, max_length=200, choices=OUTCOME_CHOICES)
-    outcome_two_years_date = models.DateField(blank=True, null=True)
+    complications          = models.CharField(blank=True, null=True, max_length=200, choices=COMPLICATIONS_CHOICES)
 
 
 class OPATActions(EpisodeSubrecord):
