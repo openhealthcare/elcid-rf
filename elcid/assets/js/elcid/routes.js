@@ -186,4 +186,6 @@ app.config(
                      },
                  },
              })
+             .when('/beta/labtests/:test_name/',
+                   param_template_route('/templates/labtests/', ['test_name']))
      }]);

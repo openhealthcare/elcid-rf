@@ -11,5 +11,9 @@ urlpatterns = [
     #     views.LabDetailModal.as_view(),
     #     name='lab_detail_modal'
     # ),
-
+    path(
+        'templates/labtests/<test_name>/',
+        views.LabTestListByName.as_view(),
+        name="labtests-list-by-view"
+    )
 ]

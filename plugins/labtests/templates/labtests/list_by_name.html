@@ -1,0 +1,11 @@
+<div class="content-offset">
+  <h1>{{ test_name }}</h1>
+  {% for test in tests %}
+  <p>
+    <a href="/#/lab-test/{{test.lab_number}}/" target="_blank">
+      {{ test.lab_number }}
+    </a>
+    {{ test.datetime_ordered }} {{ test.clinical_info }}
+  </p>
+  {% endfor %}
+</div>
