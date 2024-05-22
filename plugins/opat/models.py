@@ -67,6 +67,7 @@ class OPATRecord(EpisodeSubrecord):
     treatment_outcome      = models.CharField(blank=True, null=True, max_length=200, choices=TREATMENT_OUTCOME_CHOICES)
     outcome_one_year_date  = models.DateField(blank=True, null=True)
     complications          = models.CharField(blank=True, null=True, max_length=200, choices=COMPLICATIONS_CHOICES)
+    microbiology           = models.TextField(blank=True, null=True, verbose_name="Significant Microbiology Results")
 
 
 class OPATActions(EpisodeSubrecord):
