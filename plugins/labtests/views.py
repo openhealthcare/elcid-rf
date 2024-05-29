@@ -1,6 +1,8 @@
 """
 Views for the labtests Opal Plugin
 """
+import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
@@ -12,6 +14,15 @@ class LabTestListByName(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, *a, **k):
         context = super().get_context_data(*a, **k)
+
+        one_year_ago = datetime.datetime.now() - datetime.timedelta(days=31*6)
+        tests = models.LabTest.objects.filter(
+            test_name=k['test_name'],
+            datetime_ordered__gte=one_year_ago
+        )
+        count = tests.count()
+
         context['test_name'] = k['test_name']
-        context['tests'] = models.LabTest.objects.filter(test_name=k['test_name'])[:100]
+        context['tests'] = tests
+        context['count'] = count
         return context
