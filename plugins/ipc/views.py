@@ -90,7 +90,7 @@ class IPCHomeView(LoginRequiredMixin, TemplateView):
             'carb_resistance',
             'multi_drug_resistant_organism', 'covid_19'
         ]
-        sites = [('RFH', 'RAL01'), ('Barnet', 'RAL26')]
+        sites = [('RFH', 'RAL01'), ('Barnet', 'RAL26'), ('Chase Farm', 'RALC7')]
 
         for name, site in sites:
             counts = {}

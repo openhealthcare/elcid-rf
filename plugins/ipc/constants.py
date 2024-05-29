@@ -26,6 +26,13 @@ WARDS_TO_EXCLUDE_FROM_SIDEROOMS = [
     '12 EAST A PO',
     '8 SOUTH',
     '7 EAST B',
+    'CF-Test',
+    'CF-Nuffield',
+    'CF-Napier',
+    'CF-Highgate',
+    'CF-Canter',
+    'CF-RNOH',
+    'CF-DS',
 ]
 
 WARDS_TO_EXCLUDE_FROM_LIST = [
@@ -103,5 +110,6 @@ WARDS_TO_EXCLUDE_FROM_LIST = [
 
 HOSPITAL_NAMES = {
     'RAL01': 'ROYAL FREE HOSPITAL',
-    'RAL26': 'BARNET HOSPITAL'
+    'RAL26': 'BARNET HOSPITAL',
+    'RALC7': 'CHASE FARM HOSPITAL',
 }
