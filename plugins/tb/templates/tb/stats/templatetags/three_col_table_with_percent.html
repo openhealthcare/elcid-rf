@@ -1,3 +1,5 @@
+{% load humanize %}
+
 {% load tb_stats %}
 {% if title %}
 <div class="row">
@@ -19,7 +21,7 @@
                 {{ field_name }}
               </div>
               <div class="pull-right">
-                {{ values.val }}
+                {{ values.val | intcomma }}
               </div>
             </div>
           </div>

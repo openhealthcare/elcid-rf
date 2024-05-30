@@ -970,6 +970,29 @@ class AbstractClinicActivity(LoginRequiredMixin, TemplateView):
 class ClinicActivity(AbstractClinicActivity):
     template_name = "tb/stats/clinic_activity.html"
 
+    def mdt_count(self):
+        mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
+            name="MDT meeting"
+        )
+        return PatientConsultation.objects.filter(
+                when__date__gte=self.start_date,
+                when__date__lt=self.end_date,
+                reason_for_interaction_fk_id=mdt_meeting.id,
+            ).count()
+
+    def consultation_count(self):
+        return PatientConsultation.objects.filter(
+            when__date__gte=self.start_date,
+            when__date__lt=self.end_date,
+        ).count()
+
+    def treatment_count(self):
+        return Treatment.objects.filter(
+            category=Treatment.TB,
+            created__date__gte=self.start_date,
+            created__date__lte=self.end_date
+        ).count()
+
     @timing
     def summary(self):
         attended_appointments = self.atttended_appointments
@@ -1044,7 +1067,13 @@ class ClinicActivity(AbstractClinicActivity):
 
     @timing
     def mdt_start_stop(self):
-        pcs = self.mdt_meeting_qs
+        """
+        For a period of time, count TB MDT entries and group them
+        by week. Create a datastructure that can be fed into C3
+
+        Return data for graph
+        """
+        pcs = self.mdt_meeting_qs # patient consultations
         by_week = defaultdict(list)
         for pc in pcs:
             for start_week, end_week in self.weeks:
@@ -1059,6 +1088,7 @@ class ClinicActivity(AbstractClinicActivity):
             else:
                 whens = [i.when for i in pcs]
                 count[start] = len(whens)
+
         return {
             "x_axis": json.dumps(
                 [f"{i.strftime('%d/%m')}-{b.strftime('%d/%m')}" for i, b in self.weeks]
@@ -1130,25 +1160,51 @@ class ClinicActivity(AbstractClinicActivity):
             }
         }
 
+    def primary_diagnoses(self):
+        """
+        Return a summary of primary diagnoses recorded
+        """
+        diagnoses = Diagnosis.objects.filter(
+            created__date__gte=self.start_date,
+            created__date__lte=self.end_date,
+            category=Diagnosis.PRIMARY
+        )
+        by_diagnosis = defaultdict(int)
+        for diag in diagnoses:
+            by_diagnosis[diag.condition] += 1
+
+        less_than_5 = 0
+        result = dict()
+        for k, v in by_diagnosis.items():
+            if v < 5:
+                less_than_5 += v
+            else:
+                result[k] = v
+
+        result = dict(sorted(result.items(), key=lambda x: x[1], reverse=True))
+        result["Other (<5)"] = less_than_5
+
+        return result
+
     def users_recorded(self):
         """
         The users who recorded patient consultations in elcid
         """
-        pcs = self.non_mdt_consultations
+        pcs = self.non_mdt_consultations + self.mdt_meeting_qs
         by_initials = defaultdict(int)
         for pc in pcs:
             by_initials[pc.initials] += 1
-        less_than_5 = 0
+        less_than_50 = 0
         result = dict()
         for k, v in by_initials.items():
-            if v < 5:
-                less_than_5 += v
+            if v < 50:
+                less_than_50 += v
             else:
                 result[k] = v
         result = dict(sorted(
             result.items(), key=lambda x: x[1], reverse=True
         ))
-        result["Other (<5)"] = less_than_5
+        result["Other (<50)"] = less_than_50
         return result
 
     def patient_notes_by_reason_for_interaction(self):
@@ -1252,14 +1308,20 @@ class ClinicActivity(AbstractClinicActivity):
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
-        ctx["summary"] = self.summary()
-        ctx["appointments_by_status"] = self.appointments_by_status()
-        ctx["appointments_by_type"] = self.appointments_by_type()
-        ctx["mdt_start_stop"] = self.mdt_start_stop()
-        ctx["elcid_review"] = self.elcid_review()
-        ctx["users_recorded"] = self.users_recorded()
+
+        ctx["summary"]                                 = self.summary()
+        ctx["appointments_by_status"]                  = self.appointments_by_status()
+        ctx["appointments_by_type"]                    = self.appointments_by_type()
+        ctx["mdt_start_stop"]                          = self.mdt_start_stop()
+        ctx["mdt_count"]                               = self.mdt_count()
+        ctx["consultation_count"]                      = self.consultation_count()
+        ctx["treatment_count"]                         = self.treatment_count()
+        ctx["elcid_review"]                            = self.elcid_review()
+        ctx["users_recorded"]                          = self.users_recorded()
+        ctx["diagnoses"]                               = self.primary_diagnoses()
         ctx["patient_notes_by_reason_for_interaction"] = self.patient_notes_by_reason_for_interaction()
-        ctx["populated"] = self.subrecords_recorded()
+        ctx["populated"]                               = self.subrecords_recorded()
+
         return ctx
 
 

@@ -18,6 +18,8 @@
   </div>
   <div class="panel-body">
     <div class="row headline">
+      <h1>Appointments</h1>
+
       <div class="col-md-4">
         <h1>{{ summary.number_of_appointments | intcomma }}</h1>
         <h3>Appointments</h3>
@@ -33,7 +35,6 @@
     </div>
     <div class="row content-offset">
       <div class="col-md-12">
-        <h1>Appointments</h1>
         <div class="row">
           <div class="content-offset-20" id="appointment_overview"></div>
           <script>
@@ -110,9 +111,29 @@
         {% three_col_table_with_percent 'Appointments by type' appointments_by_type %}
       </div>
     </div>
+
+
+    <div class="row headline">
+      <h1 class="content-offset-100">MDT Meeting</h1>
+
+      <div class="col-md-4">
+        <!-- <h1>{{ summary.number_of_appointments | intcomma }}</h1> -->
+        <!-- <h3>Appointments</h3> -->
+      </div>
+      <div class="col-md-4">
+        <h1>{{ mdt_count | intcomma  }}</h1>
+        <h3>MDT Entries</h3>
+      </div>
+      <div class="col-md-4">
+        <!-- <h1>{{ summary.number_of_new_patients | intcomma  }}</h1> -->
+        <!-- <h3>New patients</h3> -->
+      </div>
+    </div>
+
+
     <div class="row content-offset">
       <div class="col-md-12">
-        <h1>MDT Review</h1>
+        <h1>MDT Notes</h1>
       </div>
     </div>
     <div class="row">
@@ -147,79 +168,107 @@
                 position: 'outer-middle'
               }
             },
-            y2: {
-              show: true,
-              min: 0,
-              padding: {top:0, bottom:0},
-              label: {
-                text: 'Duration (minutes)',
-                position: 'outer-middle'
-              }
-            }
+            //   y2: {
+            //   show: true,
+            //   min: 0,
+            //   padding: {top:0, bottom:0},
+            //   label: {
+            //     text: 'Duration (minutes)',
+            //     position: 'outer-middle'
+            //   }
+            // }
           }
         });
       </script>
     </div>
+    <!-- <div class="row content-offset"> -->
+    <!--   <div class="col-md-12"> -->
+    <!--     {% category_bar_chart "Clinic entries" elcid_review.x elcid_review.vals %} -->
+    <!--   </div> -->
+    <!-- </div> -->
+    <!-- <div class="row"> -->
+    <!--   <div class="col-md-12"> -->
+    <!--     <table class="table table-striped"> -->
+    <!--       <thead> -->
+    <!--         <tr> -->
+    <!--         {% for header in elcid_review.table.headers %} -->
+    <!--           <th>{{ header }}</th> -->
+    <!--         {% endfor %} -->
+    <!--         </tr> -->
+    <!--       </thead> -->
+    <!--       <tbody> -->
+    <!--         {% for row_name, values in elcid_review.table.rows.items %} -->
+    <!--         <tr> -->
+    <!--           <td>{{ row_name }}</td> -->
+    <!--           {% for val in values %} -->
+    <!--           <td {% if not val.2 %}class="text-muted"{% endif %}>{{ val.0 }}/{{ val.1 }} {% if val.2 %}({{ val.2 }}%){% endif %}</td> -->
+    <!--           {% endfor %} -->
+    <!--         </tr> -->
+
+    <!--         {% endfor %} -->
+    <!--       </tbody> -->
+
+    <!--     </table> -->
+    <!--   </div> -->
+      <!-- </div> -->
+
+   <div class="row headline">
+      <h1 class="content-offset-100">Patient Notes</h1>
+
+
+      <div class="col-md-4 col-md-offset-2">
+        <h1>{{ consultation_count | intcomma  }}</h1>
+        <h3>Clinical Advice Entries</h3>
+      </div>
+
+
+      <div class="col-md-4 ">
+        <h1>{{ treatment_count | intcomma }}</h1>
+        <h3>Treatments recorded</h3>
+      </div>
+
+      <!-- <div class="col-md-4"> -->
+        <!-- <h1>{{ summary.number_of_new_patients | intcomma  }}</h1> -->
+        <!-- <h3>New patients</h3> -->
+      <!-- </div> -->
+   </div>
+
+
     <div class="row content-offset">
-      <div class="col-md-12">
-        {% category_bar_chart "Clinic entries" elcid_review.x elcid_review.vals %}
+      <div class="col-md-4 ">
+        {% table_with_percent "Notes By user" users_recorded %}
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-            {% for header in elcid_review.table.headers %}
-              <th>{{ header }}</th>
-            {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            {% for row_name, values in elcid_review.table.rows.items %}
-            <tr>
-              <td>{{ row_name }}</td>
-              {% for val in values %}
-              <td {% if not val.2 %}class="text-muted"{% endif %}>{{ val.0 }}/{{ val.1 }} {% if val.2 %}({{ val.2 }}%){% endif %}</td>
-              {% endfor %}
-            </tr>
+      <div class="col-md-4 ">
+        {% table_with_percent "By Type" patient_notes_by_reason_for_interaction %}
+      </div>
 
-            {% endfor %}
-          </tbody>
+      <div class="col-md-4 ">
+        {% table_with_percent "Primary Diagnoses" diagnoses %}
+      </div>
 
-        </table>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">
-        {% table_with_percent "elCID Patient notes by user" users_recorded %}
-      </div>
-      <div class="col-md-4">
-        {% table_with_percent "By reasons for interaction" patient_notes_by_reason_for_interaction %}
-      </div>
-      <div class="col-md-4">
-        <div class="row">
-          <div class="col-md-12 text-center">
-            <h3>Populated Panels</h3>
-          </div>
-        </div>
-        <div class="row content-offset-20">
-          <div class="col-md-12">
-            <table class="table table-striped">
-              {% for row in populated.items %}
-              <tr>
-                <td>
-                  {{ row.0 }}
-                </td>
-                <td>
-                  {{ row.1 }}
-                </td>
-              </tr>
-              {% endfor %}
-            </table>
-          </div>
-        </div>
-      </div>
+      <!-- <div class="col-md-4"> -->
+      <!--   <div class="row"> -->
+      <!--     <div class="col-md-12 text-center"> -->
+      <!--       <h3>Populated Panels</h3> -->
+      <!--     </div> -->
+      <!--   </div> -->
+      <!--   <div class="row content-offset-20"> -->
+      <!--     <div class="col-md-12"> -->
+      <!--       <table class="table table-striped"> -->
+      <!--         {% for row in populated.items %} -->
+      <!--         <tr> -->
+      <!--           <td> -->
+      <!--             {{ row.0 }} -->
+      <!--           </td> -->
+      <!--           <td> -->
+      <!--             {{ row.1 }} -->
+      <!--           </td> -->
+      <!--         </tr> -->
+      <!--         {% endfor %} -->
+      <!--       </table> -->
+      <!--     </div> -->
+      <!--   </div> -->
+      <!-- </div> -->
     </div>
   </div>
 </div>

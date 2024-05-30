@@ -22,14 +22,6 @@
                ng-focus="{{ formname }}['{{ date_field }}' + '_open']=true"
                close-text="Close"
                />
-        <span class="input-group-btn">
-          <button type="button" class="btn btn-default" ng-click="{{ date_model }} = dateHelper.now()" href="">
-            Today
-          </button>
-          <button type="button" class="btn btn-default" ng-click="{{ date_model }} = dateHelper.yesterday()" href="">
-            Yesterday
-          </button>
-        </span>
       </div>
     </div>
   </div>
