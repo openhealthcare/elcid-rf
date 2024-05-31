@@ -141,6 +141,7 @@ def write_clinical_advice(advice):
             "agreed_plan",
             "initials"
         )
+
     elif isinstance(advice, tb_models.PatientConsultation):
         note_data["note_type"] = 'Respiratory Medicine Consult Note'
         note_data["note"] = render_tb_advice(advice)

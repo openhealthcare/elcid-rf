@@ -38,4 +38,7 @@ class ElcidSearchQuery(DatabaseQuery):
         if Demographics.objects.filter(hospital_number=self.query).exists():
             return [Patient.objects.get(demographics__hospital_number=self.query)]
 
+        if Demographics.objects.filter(nhs_number=self.query).exists():
+            return [Patient.objects.get(demographics__nhs_number=self.query)]
+
         return super().fuzzy_query()
