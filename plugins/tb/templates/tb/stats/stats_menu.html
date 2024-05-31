@@ -4,15 +4,15 @@
 <div class="view-switcher">
   <div class="row content-offset-below-10">
     <div class="col-md-12 text-right">
-      <!-- <div class="btn-group"> -->
-      <!--   {% for start_year, end_year in view.menu_years %} -->
-      <!--   <a href="/#/tb/clinic-activity/{{ start_year }}/" class='btn {% if start_year == view.kwargs.year|add:"0" %}btn-secondary{% else %}btn-default{% endif %}'> -->
-      <!--     <h4> -->
-      <!--       {{ start_year }} -->
-      <!--     </h4> -->
-      <!--   </a> -->
-      <!--   {% endfor %} -->
-      <!-- </div> -->
+      <div class="btn-group">
+        {% for start_year, end_year in view.menu_years %}
+        <a href="/#/tb/clinic-activity/{{ start_year }}/" class='btn {% if start_year == view.kwargs.year|add:"0" %}btn-secondary{% else %}btn-default{% endif %}'>
+          <h4>
+            {{ start_year }}
+          </h4>
+        </a>
+        {% endfor %}
+      </div>
     </div>
   </div>
   <div class="row">
