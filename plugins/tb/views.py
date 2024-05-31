@@ -7,6 +7,7 @@ import datetime
 import io
 import zipfile
 from collections import defaultdict
+
 from django.http.response import StreamingHttpResponse
 from django.views.generic import DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,8 +18,9 @@ from django.db.models import Q
 from opal.core.serialization import deserialize_datetime
 from opal.core import subrecords
 from opal.models import (
-    PatientConsultationReasonForInteraction, Patient, Episode
+    PatientConsultationReasonForInteraction, Patient, Episode, Drug
 )
+
 from elcid.models import (
     Diagnosis,
     Demographics,
@@ -26,6 +28,8 @@ from elcid.models import (
 )
 from elcid.utils import timing
 from plugins.appointments.models import Appointment
+from plugins.labtests import models as lab_models
+
 from plugins.tb import episode_categories, constants, models
 from plugins.tb.models import (
     AFBRefLab,
@@ -39,7 +43,6 @@ from plugins.tb.models import (
     Treatment,
     TBPCR,
 )
-from plugins.labtests import models as lab_models
 from plugins.tb.utils import get_tb_summary_information
 
 
@@ -767,6 +770,41 @@ class OnTBMeds(LoginRequiredMixin, TemplateView):
         ctx["demographics_and_treatments"] = sorted(
             demographics_to_treatments.items(), key=lambda x: x[0].surname.strip().lower()
         )
+        ctx["regimen"] = 'TB medication'
+        return ctx
+
+
+
+class OnTBMedSpecific(LoginRequiredMixin, TemplateView):
+    template_name = "tb/on_tb_meds.html"
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        today = datetime.date.today()
+
+        treatment_id = Drug.objects.get(name=kwargs['drug_name']).id
+
+        treatments = Treatment.objects.filter(
+            category=Treatment.TB,
+            drug_fk_id=treatment_id
+        ).exclude(
+            end_date__lte=today
+        ).exclude(
+            planned_end_date__lte=today
+        ).order_by('-start_date').prefetch_related(
+            'episode__patient__demographics_set'
+        )
+
+        demographics_to_treatments = defaultdict(list)
+
+        for treatment in treatments:
+            demographics = treatment.episode.patient.demographics_set.all()[0]
+            demographics_to_treatments[demographics].append(treatment)
+        ctx["demographics_and_treatments"] = sorted(
+            demographics_to_treatments.items(), key=lambda x: x[0].surname.strip().lower()
+        )
+        ctx["regimen"] = kwargs['drug_name']
         return ctx
 
 

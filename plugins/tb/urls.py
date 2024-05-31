@@ -1,6 +1,7 @@
 """
 Urls for the tb Opal plugin
 """
+from django.urls import path
 from django.conf.urls import url
 
 from plugins.tb import views
@@ -71,6 +72,11 @@ urlpatterns = [
         r'^templates/tb/on_tb_meds/$',
         views.OnTBMeds.as_view(),
         name="on_tb_meds"
+    ),
+    path(
+        'templates/tb/on_tb_meds/<drug_name>/',
+        views.OnTBMedSpecific.as_view(),
+        name="on_tb_meds_specific"
     ),
     url(
         r'^templates/tb/outstanding_mdt_list/$',

@@ -5,42 +5,110 @@
   <div class="panel-heading">
     <div class="row">
       <div class="col-md-12">
-        <h1>On medication</h1>
+        <h1>
+          On medication
+        </h1>
         <p class="content-offset-below-10">
           {{ demographics_and_treatments|length }}
-          patients currently on TB medication.</p>
+          patients currently on {{ regimen }}.</p>
       </div>
     </div>
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-2">
+          <ul class="" >
+            <li >
+              <a href="/#/tb/on-tb-meds/">
+                All Patients
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Bedaquiline/">
+                Bedaquiline
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Ethambutol/">
+                Ethambutol
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Isoniazid/">
+                Isoniazid
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Linezolid/">
+                Linezolid
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Pyrazinamide/">
+                Pyrazinamide
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Pyridoxine/">
+                Pyridoxine
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Rifampicin/">
+                Rifampicin
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Rifater/">
+                Rifater
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Rifinah/">
+                Rifinah
+              </a>
+            </li>
+            <li >
+              <a href="/#/tb/on-tb-meds/Voractiv/">
+                Voractiv
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-10">
+          <table class="table table-striped">
+            <tbody>
+              <tr>
+                <th class="col-md-4">Patient</th>
+                <th class="col-md-8">Current Regimen</th>
+              </tr>
+              {% for demographics, treatments in demographics_and_treatments %}
+              <tr>
+                <td>
+                  <a href="/#/patient/{{ demographics.patient_id }}/{{ treatments.0.episode.id }}/" class="orange-link">
+                    {{ demographics.hospital_number }} {{ demographics.name }} <br />
+                  </a>
+                </td>
+                <td>
+                  {% for treatment in treatments %}
+                  <div>
+                    {{ treatment.drug }}
+                    {{ treatment.dose }}
+                    {{ treatment.route }}
+                    {{ treatment.frequency }}
+                    {% if treatment.start_date %}
+                    &nbsp;-&nbsp; {{ treatment.start_date|date }} ({{ treatment.start_date|timesince }} ago)
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+
   </div>
-  <table class="table table-striped">
-    <tbody>
-      <tr>
-        <th class="col-md-4">Patient</th>
-        <th class="col-md-8">Current Regimen</th>
-      </tr>
-      {% for demographics, treatments in demographics_and_treatments %}
-      <tr>
-        <td>
-          <a href="/#/patient/{{ demographics.patient_id }}/{{ treatments.0.episode.id }}/" class="orange-link">
-            {{ demographics.hospital_number }} {{ demographics.name }} <br />
-          </a>
-        </td>
-        <td>
-          {% for treatment in treatments %}
-          <div>
-            {{ treatment.drug }}
-            {{ treatment.dose }}
-            {{ treatment.route }}
-            {{ treatment.frequency }}
-            {% if treatment.start_date %}
-              &nbsp;-&nbsp; {{ treatment.start_date|date }} ({{ treatment.start_date|timesince }} ago)
-            {% endif %}
-          </div>
-          {% endfor %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endblock %}
+  {% endblock %}
