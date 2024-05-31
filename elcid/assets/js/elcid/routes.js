@@ -67,6 +67,7 @@ app.config(
              .when('/covid-19/clinic-list/', static_template_route('/templates/covid/clinic_list.html'))
 
              .when('/ICU/',                  static_template_route('/templates/icu/dashboard.html'))
+             .when('/ICU/activity/:year/',    param_template_route('templates/icu/activity/', ['year']))
              .when('/elcid/',                static_template_route('/templates/elcid/dashboard.html'))
 
              .when('/lab-sync-performance/', static_template_route('/templates/monitoring/lab_timings.html'))

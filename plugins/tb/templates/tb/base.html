@@ -30,6 +30,12 @@
         On medication
       </a>
     </li>
+    <li>
+      {% now "Y" as current_year %}
+      <a href="/#/tb/clinic-activity/{{ current_year }}">
+        Service Activity
+      </a>
+    </li>
   </ul>
 </div>
 
