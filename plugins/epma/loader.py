@@ -32,11 +32,15 @@ CERNERRFG.EPMA_MedOrder.LOCALPATIENTID = @MRN
 
 def cast_to_instance(instance, row):
     """
-    Given an INSTANCE of EPMAMedOrder and a ROW from the upstream table,
-    set the values from the upstream table on the local instance, ready
-    to save to our database
+    Given an INSTANCE of EPMAMedOrder or EPMAMedOrderDetail and a ROW
+    from the upstream table, set the values from the upstream table
+    on the local instance, ready to save to our database
     """
     for k, v in row.items():
+
+        if k not in instance.UPSTREAM_FIELDS_TO_MODEL_FIELDS:
+            continue # FULL OUTER JOIN SELECT * gives you the other model
+
         if v:  # Ignore empty values
             fieldtype = type(
                 instance.__class__._meta.get_field(
@@ -67,7 +71,7 @@ def load_meds_for_patient(patient):
         order_results.extend(result)
 
         detail_result = api.execute_epma_query(Q_GET_DETAILS_FOR_MRN, params={'mrn': mrn})
-        order_detail_results.extend(result)
+        order_detail_results.extend(detail_result)
 
     orders = []
 
@@ -80,8 +84,8 @@ def load_meds_for_patient(patient):
 
     order_details = []
     for row in order_detail_results:
-        order = EPMAMedOrder.objects.get(row['ORDER_ID'])
-        order_detail = EPMAMedOrderDetail(epmaorder=order)
+        order = EPMAMedOrder.objects.get(o_order_id=row['ORDER_ID'])
+        order_detail = EPMAMedOrderDetail(epmamedorder=order)
         order_detail = cast_to_instance(order_detail, row)
         order_details.append(order_detail)
 
