@@ -1,14 +1,34 @@
+"""
+Load scripts for the EPMA module
+"""
 from django.db import transaction
-from intrahospital_api.apis.prod_api import ProdApi as ProdAPI
 from django.db.models import DateTimeField
 from django.utils import timezone
+
 from elcid.models import Demographics
+from intrahospital_api.apis.prod_api import ProdApi as ProdAPI
+
 from plugins.epma.models import (
     EPMAMedOrder,
     EPMAMedOrderDetail,
     EPMATherapeuticClassLookup,
 )
 
+
+Q_GET_MEDS_FOR_MRN = """
+SELECT * FROM
+CERNERRFG.EPMAMedOrder
+WHERE
+LOCALPATIENTID = @mrn
+"""
+
+Q_GET_DETAILS_FOR_MRN = """
+SELECT * FROM
+CERNERRFG.EPMAMedOrderDetail, D
+OUTER JOIN CERNERRFG.EPMAMedOrder ON CERNERRFG.EPMAMedOrderDetail.ORDER_ID = CERNERRFG.EPMAMedOrderDetail.O_ORDER_ID
+WHERE
+CERNERRFG.EPMAMedOrder.LOCALPATIENTID = @MRN
+"""
 
 class Hashabledict(dict):
     def __hash__(self):
@@ -45,6 +65,11 @@ def query_med_order_details_from_order_ids(order_ids):
 
 
 def cast_to_instance(instance, row):
+    """
+    Given an INSTANCE of EPMAMedOrder and a ROW from the upstream table,
+    set the values from the upstream table on the local instance, ready
+    to save to our database
+    """
     for k, v in row.items():
         if v:  # Ignore empty values
             fieldtype = type(
@@ -114,6 +139,7 @@ def load_med_orders_since(since):
             order = cast_to_instance(order, row)
             orders.append(order)
     EPMAMedOrder.objects.bulk_create(orders)
+
     order_details = [Hashabledict(i) for i in query_med_order_details_since(since)]
     patient_order_details = []
     for i in range(0, len(order_ids), 100):
@@ -154,3 +180,28 @@ def load_epmatherapeuticclasslookup():
         lookup = cast_to_instance(lookup, row)
         lookups.append(lookup)
     EPMATherapeuticClassLookup.objects.bulk_create(lookups)
+
+
+def load_meds_for_patient(patient):
+    """
+    Given a PATIENT, fetch all medications from the EPMA database
+    """
+    api = ProdAPI()
+    mrn = patient.demographics().hospital_number
+    other_mrns = list(
+        patient.mergedmrn_set.values_list('mrn', flat=True)
+    )
+    mrns = [mrn] + other_mrns
+    meds = []
+    for mrn in mrns:
+        result = api.execute_epma_query(Q_GET_MEDS_FOR_MRN, params={'mrn': mrn})
+        meds.extend(result)
+
+    orders = []
+    for med in meds:
+        EPMAMedOrder(patient_id=patient.id)
+        order = cast_to_instance(order, med)
+        orders.append(order)
+    EPMAMedOrder.objects.bulk_create(orders)
+
+    return
