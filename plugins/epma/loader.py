@@ -25,7 +25,7 @@ LOCALPATIENTID = @mrn
 Q_GET_DETAILS_FOR_MRN = """
 SELECT * FROM
 CERNERRFG.EPMA_MedOrderDetail
-OUTER JOIN CERNERRFG.EPMA_MedOrder ON CERNERRFG.EPMA_MedOrderDetail.ORDER_ID = CERNERRFG.EPMA_MedOrder.O_ORDER_ID
+FULL OUTER JOIN CERNERRFG.EPMA_MedOrder ON CERNERRFG.EPMA_MedOrderDetail.ORDER_ID = CERNERRFG.EPMA_MedOrder.O_ORDER_ID
 WHERE
 CERNERRFG.EPMA_MedOrder.LOCALPATIENTID = @MRN
 """
@@ -72,8 +72,8 @@ def load_meds_for_patient(patient):
     orders = []
 
     for row in order_results:
-        EPMAMedOrder(patient_id=patient.id)
-        order = cast_to_instance(row, med)
+        order = EPMAMedOrder(patient_id=patient.id)
+        order = cast_to_instance(order, row)
         orders.append(order)
 
     EPMAMedOrder.objects.bulk_create(orders)
