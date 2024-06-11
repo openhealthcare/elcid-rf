@@ -24,11 +24,74 @@ LOCALPATIENTID = @mrn
 
 Q_GET_DETAILS_FOR_MRN = """
 SELECT * FROM
-CERNERRFG.EPMAMedOrderDetail, D
-OUTER JOIN CERNERRFG.EPMAMedOrder ON CERNERRFG.EPMAMedOrderDetail.ORDER_ID = CERNERRFG.EPMAMedOrderDetail.O_ORDER_ID
+CERNERRFG.EPMAMedOrderDetail
+OUTER JOIN CERNERRFG.EPMAMedOrder ON CERNERRFG.EPMAMedOrderDetail.ORDER_ID = CERNERRFG.EPMAMedOrder.O_ORDER_ID
 WHERE
 CERNERRFG.EPMAMedOrder.LOCALPATIENTID = @MRN
 """
+
+def cast_to_instance(instance, row):
+    """
+    Given an INSTANCE of EPMAMedOrder and a ROW from the upstream table,
+    set the values from the upstream table on the local instance, ready
+    to save to our database
+    """
+    for k, v in row.items():
+        if v:  # Ignore empty values
+            fieldtype = type(
+                instance.__class__._meta.get_field(
+                    instance.UPSTREAM_FIELDS_TO_MODEL_FIELDS[k]
+                )
+            )
+            if fieldtype == DateTimeField:
+                v = timezone.make_aware(v)
+            setattr(instance, instance.UPSTREAM_FIELDS_TO_MODEL_FIELDS[k], v)
+    return instance
+
+def load_meds_for_patient(patient):
+    """
+    Given a PATIENT, fetch all medications from the EPMA database
+    """
+    api = ProdAPI()
+    mrn = patient.demographics().hospital_number
+    other_mrns = list(
+        patient.mergedmrn_set.values_list('mrn', flat=True)
+    )
+    mrns = [mrn] + other_mrns
+
+    order_results = []
+    order_detail_results = []
+
+    for mrn in mrns:
+        result = api.execute_epma_query(Q_GET_MEDS_FOR_MRN, params={'mrn': mrn})
+        order_results.extend(result)
+
+        detail_result = api.execute_epma_query(Q_GET_DETAILS_FOR_MRN, params={'mrn': mrn})
+        order_detail_results.extend(result)
+
+    orders = []
+
+    for row in order_results:
+        EPMAMedOrder(patient_id=patient.id)
+        order = cast_to_instance(row, med)
+        orders.append(order)
+
+    EPMAMedOrder.objects.bulk_create(orders)
+
+    order_details = []
+    for row in order_detail_results:
+        order = EPMAMedOrder.objects.get(row['ORDER_ID'])
+        order_detail = EPMAMedOrderDetail(epmaorder=order)
+        order_detail = cast_to_instance(order_detail, row)
+        order_details.append(order_detail)
+
+    EPMAMedOrderDetail.objects.bulk_create(order_details)
+
+    return
+
+
+# WIP Implementation 1
+
 
 class Hashabledict(dict):
     def __hash__(self):
@@ -63,24 +126,6 @@ def query_med_order_details_from_order_ids(order_ids):
     """
     return api.execute_epma_query(query, params=order_dict)
 
-
-def cast_to_instance(instance, row):
-    """
-    Given an INSTANCE of EPMAMedOrder and a ROW from the upstream table,
-    set the values from the upstream table on the local instance, ready
-    to save to our database
-    """
-    for k, v in row.items():
-        if v:  # Ignore empty values
-            fieldtype = type(
-                instance.__class__._meta.get_field(
-                    instance.UPSTREAM_FIELDS_TO_MODEL_FIELDS[k]
-                )
-            )
-            if fieldtype == DateTimeField:
-                v = timezone.make_aware(v)
-            setattr(instance, instance.UPSTREAM_FIELDS_TO_MODEL_FIELDS[k], v)
-    return instance
 
 @transaction.atomic
 def load_med_orders_since(since):
@@ -180,28 +225,3 @@ def load_epmatherapeuticclasslookup():
         lookup = cast_to_instance(lookup, row)
         lookups.append(lookup)
     EPMATherapeuticClassLookup.objects.bulk_create(lookups)
-
-
-def load_meds_for_patient(patient):
-    """
-    Given a PATIENT, fetch all medications from the EPMA database
-    """
-    api = ProdAPI()
-    mrn = patient.demographics().hospital_number
-    other_mrns = list(
-        patient.mergedmrn_set.values_list('mrn', flat=True)
-    )
-    mrns = [mrn] + other_mrns
-    meds = []
-    for mrn in mrns:
-        result = api.execute_epma_query(Q_GET_MEDS_FOR_MRN, params={'mrn': mrn})
-        meds.extend(result)
-
-    orders = []
-    for med in meds:
-        EPMAMedOrder(patient_id=patient.id)
-        order = cast_to_instance(order, med)
-        orders.append(order)
-    EPMAMedOrder.objects.bulk_create(orders)
-
-    return
