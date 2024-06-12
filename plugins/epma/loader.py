@@ -12,6 +12,7 @@ from plugins.epma.models import (
     EPMAMedOrder,
     EPMAMedOrderDetail,
     EPMATherapeuticClassLookup,
+    EPMAStatus
 )
 
 
@@ -28,6 +29,10 @@ CERNERRFG.EPMA_MedOrderDetail
 FULL OUTER JOIN CERNERRFG.EPMA_MedOrder ON CERNERRFG.EPMA_MedOrderDetail.ORDER_ID = CERNERRFG.EPMA_MedOrder.O_ORDER_ID
 WHERE
 CERNERRFG.EPMA_MedOrder.LOCALPATIENTID = @MRN
+"""
+
+Q_SELECT_LOOKUP = """
+SELECT * FROM CERNERRFG.EPMA_TherapeuticClassLookup
 """
 
 def cast_to_instance(instance, row):
@@ -51,6 +56,23 @@ def cast_to_instance(instance, row):
                 v = timezone.make_aware(v)
             setattr(instance, instance.UPSTREAM_FIELDS_TO_MODEL_FIELDS[k], v)
     return instance
+
+def load_epmatherapeuticclasslookup():
+    """
+    There aren't many of these so just delete and recreate
+    """
+    EPMATherapeuticClassLookup.objects.all().delete()
+
+    api = ProdAPI()
+    query_results = api.execute_epma_query(Q_SELECT_LOOKUP)
+
+    lookups = []
+    for row in query_results:
+        lookup = EPMATherapeuticClassLookup()
+        lookup = cast_to_instance(lookup, row)
+        lookups.append(lookup)
+    EPMATherapeuticClassLookup.objects.bulk_create(lookups)
+
 
 def load_meds_for_patient(patient):
     """
@@ -81,6 +103,9 @@ def load_meds_for_patient(patient):
         orders.append(order)
 
     EPMAMedOrder.objects.bulk_create(orders)
+
+    if len(orders) > 0:
+        EPMAStatus.objects.filter(patient=patient).update(has_epma=True)
 
     order_details = []
     for row in order_detail_results:
@@ -206,26 +231,3 @@ def load_med_orders_since(since):
             order_detail = cast_to_instance(order_detail, detail_row)
             order_details.append(order_detail)
     EPMAMedOrderDetail.objects.bulk_create(order_details)
-
-
-def query_epmatherapeuticclasslookup():
-    api = ProdAPI()
-    query = """
-    SELECT * FROM CERNERRFG.EPMA_TherapeuticClassLookup
-    """
-    return api.execute_epma_query(query)
-
-
-@transaction.atomic
-def load_epmatherapeuticclasslookup():
-    """
-    There aren't many of these so just delete and recreate
-    """
-    EPMATherapeuticClassLookup.objects.all().delete()
-    query_results = query_epmatherapeuticclasslookup()
-    lookups = []
-    for row in query_results:
-        lookup = EPMATherapeuticClassLookup()
-        lookup = cast_to_instance(lookup, row)
-        lookups.append(lookup)
-    EPMATherapeuticClassLookup.objects.bulk_create(lookups)

@@ -1,5 +1,14 @@
+"""
+Models for the elCID EPMA plugin
+"""
 from django.db import models
-from opal.models import Patient
+from opal.models import Patient, PatientSubrecord
+
+
+class EPMAStatus(PatientSubrecord):
+    _is_singleton = True
+
+    has_epma = models.BooleanField(default=False)
 
 
 class EPMAMedOrder(models.Model):
@@ -84,6 +93,48 @@ class EPMAMedOrder(models.Model):
         "LOAD_DT_TM":  "load_dt_tm",
     }
 
+    FIELDS_TO_SERIALIZE = [
+        "o_encntr_id",
+        "o_order_id",
+        "e_finnumber",
+        "e_create_dt_tm",
+        "e_encntr_type_desc",  # Inpatient
+        "e_treatmentfunction", # General Internal  Medicine
+        "e_mainspecialty",     # General Internal  Medicine
+        "e_loc_facility_desc", # RF
+        "e_building",          # RFH
+        "e_warddisplay",       # RF-8 EASt
+        "e_leadconsultant",    # Initials, name
+        "o_catalog_cd",        #  123456
+        "o_catalog_type_desc", # Pharmacy
+        "o_order_mnemonic",    # Sodium Chloride 0.9% Intravenous Solution 1,000 ML
+        "o_cki_mltmlink",      # MUL.MMDC!5902
+        "drug_identifier",     # d00088
+        "o_orig_order_dt_tm",
+        "oa_firstactionpersonnelname",
+        "oa_firstpersonnelposition", # Clinical Practitioner Access Role
+        "o_status_desc",       # Completed / Discontinued
+        "o_discontinue_ind",   # 1 / 0
+        "o_clinical_display_line",
+        "o_order_signed_date_tm",
+        "o_start_dt_tm",
+        "o_stop_dt_tm",
+        "o_orig_ord_as_flag",
+        "o_need_rx_verify_ind",
+        "o_template_order_flag",
+        "o_active_status_prsnl_id",
+        "o_last_action_sequence",
+        "o_updt_dt_tm",
+        "o_synonym_id",
+        "ord_cat_syn_cki",
+    ]
+
+    def to_dict(self):
+        data = {k: getattr(self, k) for k in self.FIELDS_TO_SERIALIZE}
+        data['detail'] = [d.to_dict() for d in EPMAMedOrderDetail.objects.filter(epmamedorder=self)]
+        return data
+
+
 
 class EPMAMedOrderDetail(models.Model):
     created_in_elcid = models.DateTimeField(auto_now_add=True)
@@ -109,6 +160,19 @@ class EPMAMedOrderDetail(models.Model):
         "UPDT_DT_TM":  "updt_dt_tm",
         "LOAD_DT_TM":  "load_dt_tm",
     }
+
+    FIELDS_TO_SERIALIZE = [
+        "action_sequence",
+        "detail_sequence",
+        "oe_field_id",
+        "oe_field_meaning",
+        "oe_field_display_value",
+        "oe_field_dt_tm_value",
+    ]
+
+    def to_dict(self):
+        return {k: getattr(self, k) for k in self.FIELDS_TO_SERIALIZE}
+
 
 
 class EPMATherapeuticClassLookup(models.Model):

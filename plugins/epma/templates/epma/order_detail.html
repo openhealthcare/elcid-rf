@@ -1,0 +1,83 @@
+<div class="content-offset">
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+
+      <div class="row">
+        <div class="col-md-9">
+          <h3>
+            Order ID: {{ order.o_order_id }}
+
+          </h3>
+        </div>
+      </div>
+    </div>
+    <!-- End Panel Header -->
+
+    <div class="panel-body">
+      <div class="row">
+
+        <div class="col-md-4">
+          <p><b>LOCALPATIENTID:</b> {{ order.localpatientid }}</p>
+          <p><b>O_ENCNTR_ID:</b>  {{ order.o_encntr_id }}</p>
+          <p><b>O_ORDER_ID:</b>  {{ order.o_order_id }}</p>
+          <p><b>E_FINNUMBER:</b>  {{ order.e_finnumber }}</p>
+          <p><b>E_CREATE_DT_TM:</b>  {{ order.e_create_dt_tm }}</p>
+          <p><b>E_ENCNTR_TYPE_DESC:</b>  {{ order.e_encntr_type_desc }}</p>
+          <p><b>E_TREATMENTFUNCTION:</b>  {{ order.e_treatmentfunction }}</p>
+          <p><b>E_MAINSPECIALTY:</b>  {{ order.e_mainspecialty }}</p>
+          <p><b>E_LOC_FACILITY_DESC:</b>  {{ order.e_loc_facility_desc }}</p>
+          <p><b>E_BUILDING:</b>  {{ order.e_building }}</p>
+          <p><b>E_WARDDISPLAY:</b>  {{ order.e_warddisplay }}</p>
+          <p><b>E_LEADCONSULTANT:</b>  {{ order.e_leadconsultant }}</p>
+          <p><b>O_CATALOG_CD:</b>  {{ order.o_catalog_cd }}</p>
+        </div>
+        <div class="col-md-4">
+          <p><b>O_CATALOG_TYPE_DESC:</b>  {{ order.o_catalog_type_desc }}</p>
+          <p><b>O_ORDER_MNEMONIC:</b>  {{ order.o_order_mnemonic }}</p>
+          <p><b>O_CKI_MLTMLINK:</b>  {{ order.o_cki_mltmlink }}</p>
+          <p><b>DRUG_IDENTIFIER:</b>  {{ order.drug_identifier }}</p>
+          <p><b>O_ORIG_ORDER_DT_TM:</b>  {{ order.o_orig_order_dt_tm }}</p>
+          <p><b>OA_FirstActionPersonnelName:</b>  {{ order.oa_firstactionpersonnelname }}</p>
+          <p><b>OA_FirstPERSONNELPOSITION:</b>  {{ order.oa_firstpersonnelposition }}</p>
+          <p><b>O_STATUS_DESC:</b>  {{ order.o_status_desc }}</p>
+          <p><b>O_DISCONTINUE_IND:</b>  {{ order.o_discontinue_ind }}</p>
+          <p><b>O_CLINICAL_DISPLAY_LINE:</b>  {{ order.o_clinical_display_line }}</p>
+          <p><b>O_ORDER_SIGNED_DATE_TM:</b>  {{ order.o_order_signed_date_tm }}</p>
+        </div>
+        <div class="col-md-4">
+          <p><b>O_START_DT_TM:</b>  {{ order.o_start_dt_tm }}</p>
+          <p><b>O_STOP_DT_TM:</b>  {{ order.o_stop_dt_tm }}</p>
+          <p><b>O_ORIG_ORD_AS_FLAG:</b>  {{ order.o_orig_ord_as_flag }}</p>
+          <p><b>O_NEED_RX_VERIFY_IND:</b>  {{ order.o_need_rx_verify_ind }}</p>
+          <p><b>O_TEMPLATE_ORDER_FLAG:</b>  {{ order.o_template_order_flag }}</p>
+          <p><b>O_ACTIVE_STATUS_PRSNL_ID:</b>  {{ order.o_active_status_prsnl_id }}</p>
+          <p><b>O_LAST_ACTION_SEQUENCE:</b>  {{ order.o_last_action_sequence }}</p>
+          <p><b>O_UPDT_DT_TM:</b>  {{ order.o_updt_dt_tm }}</p>
+          <p><b>O_SYNONYM_ID:</b>  {{ order.o_synonym_id }}</p>
+          <p><b>ORD_CAT_SYN_CKI:</b>  {{ order.ord_cat_syn_cki }}</p>
+          <p><b>DOMAIN_NAME:</b>  {{ order.domain_name }}</p>
+          <p><b>LOAD_DT_TM:</b>  {{ order.load_dt_tm }}</p>
+        </div>
+      </div>
+
+      {% for detail in order_detail %}
+      <div class="panel-heading"></div>
+      <div class="row">
+        <div class="col-md-4">
+          <p><b>ORDER_ID:</b>  {{ detail.order_id }}</p>
+          <p><b>ACTION_SEQUENCE:</b>  {{ detail.action_sequence }}</p>
+          <p><b>DETAIL_SEQUENCE:</b>  {{ detail.detail_sequence }}</p>
+          <p><b>OE_FIELD_ID:</b>  {{ detail.oe_field_id }}</p>
+          <p><b>OE_FIELD_MEANING:</b>  {{ detail.oe_field_meaning }}</p>
+          <p><b>OE_FIELD_DISPLAY_VALUE:</b>  {{ detail.oe_field_display_value }}</p>
+          <p><b>OE_FIELD_DT_TM_VALUE:</b>  {{ detail.oe_field_dt_tm_value }}</p>
+          <p><b>UPDT_DT_TM:</b>  {{ detail.updt_dt_tm }}</p>
+          <p><b>LOAD_DT_TM:</b>  {{ detail.load_dt_tm }}</p>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>

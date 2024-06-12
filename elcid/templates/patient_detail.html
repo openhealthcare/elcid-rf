@@ -69,6 +69,9 @@
              {% if detail.display_name == "AMT Handover" %}
                ng-show="patient.patient_amt_handover_status[0].has_handover"
              {% endif %}
+             {% if detail.display_name == "EPMA" %}
+               ng-show="patient.epma_status[0].has_epma"
+             {% endif %}
              {% if detail.display_name == "Nursing Handover" %}
                ng-show="patient.patient_nursing_handover_status[0].has_handover"
              {% endif %}
