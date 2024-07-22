@@ -1,7 +1,7 @@
 <p>
 {% if index_case_list.exists %}
   <b>
-    {{ models.IndexCase.get_display_name }}{{ index_case_list|pluralize}}:
+    {{ models.IndexCase.get_display_name }}{{ index_case_list|pluralize}}
   </b>
   {% for index_case in index_case_list %}
   <br />

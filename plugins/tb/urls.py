@@ -24,6 +24,11 @@ urlpatterns = [
         views.NurseLetter.as_view(),
         name="nurse_letter"
     ),
+    path(
+        'tb/latent_tb_letter/<pk>/',
+        views.LatentTBLetter.as_view(),
+        name="latent_tb_letter"
+    ),
     url(
         r'^tb/primary_diagnosis/$',
         views.PrimaryDiagnosisModal.as_view(),

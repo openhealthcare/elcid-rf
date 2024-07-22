@@ -1,5 +1,5 @@
 <p>
-  <b>Allergies: </b><br />
+  <b>Allergies </b><br />
   {% if allergies_list.exists %}
   {% for allergy in allergies_list %}
   {{ allergy.drug }}{% if allergy.provisional %}? {% endif %} &nbsp;

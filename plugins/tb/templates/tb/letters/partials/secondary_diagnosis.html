@@ -1,5 +1,5 @@
 <p>
-<b>Secondary diagnos{{ secondary_diagnosis_list|pluralize:"is,es" }}: </b><br />
+<b>Secondary diagnos{{ secondary_diagnosis_list|pluralize:"is,es" }} </b><br />
 {% if secondary_diagnosis_list.exists %}
   {% for diagnosis in secondary_diagnosis_list %}
     {{ diagnosis.condition }}

@@ -1,0 +1,85 @@
+{% extends 'letters/base.html' %}
+{% block letter_content %}
+<p>
+  Dear Dr {{ patient.gpdetails_set.get.initials }} {{ patient.gpdetails_set.get.surname.title }}
+</p>
+<p>
+  {{ patient.title }} {{ patient.name }} was reviewed by the latent TB service. The key details from the consultation are summarised below.
+</p>
+<p>
+  <b>Referral details</b>
+  <ul>
+    <li>
+      Referred from {{ referral.referral_type }}
+    </li>
+    <li>
+      {{ referral.referral_type }}
+    </li>
+    <li>
+      {{ referral.details }}
+    </li>
+  </ul>
+</p>
+
+{% include "tb/letters/partials/primary_diagnosis.html" %}
+{% include "tb/letters/partials/secondary_diagnosis.html" %}
+
+<p>
+  <b>TB medication </b><br />
+  {% include "tb/letters/partials/medication.html" with medication_list=tb_medication_list %}
+</p>
+
+<p>
+  <b>Other medication </b><br />
+  {% include "tb/letters/partials/medication.html" with medication_list=other_medication_list %}
+</p>
+
+{% include "tb/letters/partials/allergies.html" %}
+
+<p>
+  <b>Exposure history </b>
+</p>
+{% include "tb/letters/partials/index_case.html" %}
+{% if nationality.birth_place %}
+<p>
+  <b>Nationality</b><br />
+
+  Born {{ nationality.birth_place }}
+  {% if nationality.arrival_in_the_uk %}
+  Arrived in UK {{ nationality.arrival_in_the_uk }}
+  {% endif %}
+  <br />
+  {% endif %}
+</p>
+
+{% include "tb/letters/partials/tb_history.html" %}
+{% include "tb/letters/partials/travel.html" %}
+
+
+{% include "tb/letters/partials/symptoms.html" %}
+{% include "tb/letters/partials/social_history.html" %}
+
+
+<p>
+  <b>Examination</b>
+  <br />
+  <span ng-bind-html="'{{ object.examination_findings }}'|markdown">
+</p>
+
+{% include 'tb/letters/partials/imaging.html' %}
+{% include 'tb/letters/partials/other_investigations.html' %}
+
+<p>
+  <b>Discussion:</b>
+  <span ng-bind-html="'{{ object.discussion }}'|markdown"></span>
+</p>
+
+<p>
+  <b>Plan:</b><br /><span ng-bind-html="'{{ object.plan }}'|markdown"></span>
+</p>
+
+<p>
+  Yours Sincerely,
+</p>
+
+{% endblock %}

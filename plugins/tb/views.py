@@ -191,6 +191,23 @@ class FollowUp(AbstractLetterView):
     model = PatientConsultation
 
 
+class LatentTBLetter(AbstractLetterView):
+    template_name = "tb/letters/latent_tb.html"
+    model = PatientConsultation
+
+    @classmethod
+    def get_letter_context(cls, patient_consultation):
+        ctx = super().get_letter_context(patient_consultation)
+        episode = patient_consultation.episode
+        patient = patient_consultation.episode.patient
+
+        ctx["referral"] = episode.referralroute_set.get()
+        ctx["social_history"] = episode.socialhistory_set.get()
+        ctx["patient"] = patient
+
+        return ctx
+
+
 class NurseLetter(LoginRequiredMixin, DetailView):
     template_name = "tb/letters/nurse_letter.html"
     model = PatientConsultation

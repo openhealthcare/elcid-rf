@@ -1,8 +1,11 @@
 <p>
-<b>Travel:</b><br />
+<b>Travel</b><br />
 {% if travel_list.exists %}
 {% for travel in travel_list %}
-{{ travel.country }}, {{ travel.when }} ({{ travel.duration}})
+{{ travel.country }}, {{ travel.when }}
+{% if travel.duration %}
+  ({{ travel.duration}})
+{% endif %}
 <br />
 {% endfor %}
 {% else %}
