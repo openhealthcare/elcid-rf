@@ -204,6 +204,7 @@ class LatentTBLetter(AbstractLetterView):
         ctx["referral"] = episode.referralroute_set.get()
         ctx["social_history"] = episode.socialhistory_set.get()
         ctx["patient"] = patient
+        ctx["demographics"] = patient.demographics()
 
         return ctx
 
