@@ -189,6 +189,7 @@ app.config(
                  },
              })
              .when('/epma/:order_id/', param_template_route('/templates/epma/order/', ['order_id']))
+             .when('/beta/labtests/', static_template_route('/templates/labtests/test_search.html'))
              .when('/beta/labtests/:test_name/',
                    param_template_route('/templates/labtests/', ['test_name']))
      }]);

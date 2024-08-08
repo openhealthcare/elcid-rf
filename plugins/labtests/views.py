@@ -15,10 +15,10 @@ class LabTestListByName(LoginRequiredMixin, TemplateView):
     def get_context_data(self, *a, **k):
         context = super().get_context_data(*a, **k)
 
-        one_year_ago = datetime.datetime.now() - datetime.timedelta(days=31*6)
+        time_ago = datetime.datetime.now() - datetime.timedelta(days=31*6)
         tests = models.LabTest.objects.filter(
             test_name=k['test_name'],
-            datetime_ordered__gte=one_year_ago
+            datetime_ordered__gte=time_ago
         )
         count = tests.count()
 
