@@ -13,6 +13,7 @@ var static_template_route = function(url){
         },
         resolve: {
             referencedata: function(Referencedata) { return Referencedata; },
+            profile      : function(UserProfile){ return UserProfile.load(); },
         },
     }
 };

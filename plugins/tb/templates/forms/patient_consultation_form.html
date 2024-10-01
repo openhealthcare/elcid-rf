@@ -6,8 +6,25 @@
   </div>
 </div>
 {% select field="PatientConsultation.reason_for_interaction" %}
+<div ng-show="editing.patient_consultation.reason_for_interaction">
+  <div ng-if="editing.patient_consultation.reason_for_interaction.toLowerCase().indexOf('mdt') != -1">
+    <div class="row">
+      <div class="col-md-6">
+        {% checkbox field="PatientConsultation.mdt_new_result" %}
+        {% checkbox field="PatientConsultation.mdt_ipc" %}
+      </div>
+      <div class="col-md-6">
+        {% checkbox field="PatientConsultation.mdt_management" %}
+        {% checkbox field="PatientConsultation.mdt_other" %}
+      </div>
+    </div>
+
+  </div>
+</div>
 {% datetimepicker field="PatientConsultation.when" %}
-{% textarea field="PatientConsultation.examination_findings" %}
+
+{% textarea field="PatientConsultation.discussion" %}
+
 <div ng-show="editing.patient_consultation.reason_for_interaction">
   <div ng-if="editing.patient_consultation.reason_for_interaction.toLowerCase().indexOf('follow up') != -1">
     {% textarea field="PatientConsultation.progress" %}
@@ -19,7 +36,15 @@
     {% textarea field="PatientConsultation.infection_control" %}
   </div>
 </div>
-{% textarea field="PatientConsultation.discussion" %}
+
+
+<div ng-show="editing.patient_consultation.reason_for_interaction">
+  <div ng-if="editing.patient_consultation.reason_for_interaction.toLowerCase().indexOf('mdt') == -1">
+    {% textarea field="PatientConsultation.examination_findings" %}
+  </div>
+</div>
+
+
 {% textarea field="PatientConsultation.plan" %}
 
 <div class="row">

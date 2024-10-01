@@ -23,6 +23,7 @@ class LabTestListByName(LoginRequiredMixin, TemplateView):
         count = tests.count()
 
         context['test_name'] = k['test_name']
-        context['tests'] = tests
-        context['count'] = count
+        context['tests']     = tests
+        context['count']     = count
+        context['time_ago']  = time_ago
         return context

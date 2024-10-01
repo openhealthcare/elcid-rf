@@ -640,11 +640,11 @@ class MDTList(LoginRequiredMixin, TemplateView):
         # RFH lab numbers are changng, and now may contain
         # either a K/L or begin with a 'site code' - 27/37
         if self.kwargs["site"] == self.BARNET:
-            exclude_args_old_labnumbers["lab_number__contains"] = "L"
-            exclude_args["lab_number__startswith"] = "27"
+            exclude_args_old_labnumbers["lab_number__contains"] = "L" # Free
+            exclude_args["lab_number__startswith"] = "37" # Free
         else:
-            exclude_args_old_labnumbers["lab_number__contains"] = "K"
-            exclude_args["lab_number__startswith"] = "37"
+            exclude_args_old_labnumbers["lab_number__contains"] = "K" # Barnet
+            exclude_args["lab_number__startswith"] = "27" # Barnet
 
         patient_ids = set()
         for tb_obs_model in self.ALL_OBS:

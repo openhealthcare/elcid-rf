@@ -3,6 +3,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <h1>{{ test_name }} ({{ count | intcomma }}) </h1>
+      <p class="small">All tests named {{ test_name }} since {{ time_ago }}.</p>
     </div>
     <div class="panel-body">
       {% for test in tests %}

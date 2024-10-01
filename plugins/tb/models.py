@@ -6,7 +6,7 @@ from django.db import models as fields
 from django.db.models import Max
 
 from elcid.models import PreviousMRN
-from opal.core.fields import ForeignKeyOrFreeText
+from opal.core.fields import ForeignKeyOrFreeText, enum
 from opal.core import lookuplists
 from opal import models
 
@@ -258,6 +258,10 @@ class PatientConsultation(PreviousMRN, models.PatientConsultation):
         blank=True, default=""
     )
     sent_upstream = fields.BooleanField(default=False)
+    mdt_new_result = fields.BooleanField(default=False, verbose_name="New microbiology result")
+    mdt_ipc        = fields.BooleanField(default=False, verbose_name="Infection control")
+    mdt_management  = fields.BooleanField(default=False, verbose_name="Clinical management")
+    mdt_other      = fields.BooleanField(default=False, verbose_name="Other")
 
 
 class ContactDetails(PreviousMRN, models.PatientSubrecord):
