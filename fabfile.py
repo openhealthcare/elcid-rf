@@ -1064,7 +1064,7 @@ def deploy_prod(old_branch, old_database_name=None):
     # if backup_name:
     #     postgres_load_database(backup_name, new_env) # Takes hours, requires a huge free disk to have many copies
 
-    postgres_command(f"ALTER DATABASE {old} RENAME TO {new};".format(
+    postgres_command("ALTER DATABASE {old} RENAME TO {new};".format(
         old=old_env.database_name,
         new=new_env.database_name
     ))
