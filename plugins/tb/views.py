@@ -1005,7 +1005,7 @@ class AbstractClinicActivity(LoginRequiredMixin, TemplateView):
     @cached_property
     def non_mdt_consultations(self):
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="MDT meeting"
+            name="Microbacteria MDT"
         )
         return list(
             PatientConsultation.objects.filter(when__date__gte=self.start_date)
@@ -1028,7 +1028,7 @@ class ClinicActivity(AbstractClinicActivity):
 
     def mdt_count(self):
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="MDT meeting"
+            name="Microbacteria MDT"
         )
         return PatientConsultation.objects.filter(
                 when__date__gte=self.start_date,
