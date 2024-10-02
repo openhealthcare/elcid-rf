@@ -1015,9 +1015,9 @@ def deploy_prod(old_branch, old_database_name=None):
     name as normal.
     """
     new_branch = infer_current_branch()
-    backup_name = old_env.release_backup_name
     old_env = Env(old_branch)
     new_env = Env(new_branch)
+    backup_name = old_env.release_backup_name
 
     validate_private_settings()
 
