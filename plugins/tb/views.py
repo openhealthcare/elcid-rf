@@ -832,7 +832,7 @@ class OutstandingActionsMDT(LoginRequiredMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="MDT meeting"
+            name="Microbacteria MDT"
         )
         patient_consultations = PatientConsultation.objects.exclude(
             plan=""
@@ -992,7 +992,7 @@ class AbstractClinicActivity(LoginRequiredMixin, TemplateView):
     @cached_property
     def mdt_meeting_qs(self):
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="MDT meeting"
+            name="Microbacteria MDT"
         )
         return list(
             PatientConsultation.objects.filter(
