@@ -1,5 +1,5 @@
 """
-This deals with deployment for the rfh.
+This deals with deployment for the Royal Free.
 
 Before you being make sure that in ../private_settings.json
 you have
@@ -28,9 +28,6 @@ deploy_prod, this takes the old env and the new env
 create_private_settings will create an empty private settings file in
 the appropriate place with the fields for you to fill in
 
-The code is in
-/usr/lib/ohc/log
-
 The log environment for this project is considered to be
 /usr/lib/ohc/log/
 
@@ -51,6 +48,14 @@ from fabric.context_managers import lcd, settings
 from fabric.decorators import task
 import os
 import stat
+
+
+"""
+3+ hour deployments with 95% time spent backing up and loading a database
+are unsustainable.
+
+A rewrite of this process moves to altering in place, with only rollbacks requiring a database load.
+"""
 
 env.hosts = ['127.0.0.1']
 UNIX_USER = "ohc"
@@ -222,38 +227,45 @@ def postgres_command(command):
     )
 
 
-def postgres_create_database(some_env, remove_existing):
-    """ creates a database and user if they don't already exist.
-        the db_name is created from the release name
-    """
-    print("Creating the database")
+# def postgres_create_database(some_env, remove_existing):
+#     """ creates a database and user if they don't already exist.
+#         the db_name is created from the release name
+#     """
+#     print("Creating the database")
 
-    select_result = local(
-        "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_database \
-WHERE datname='{}'\"".format(some_env.database_name),
-        capture=True
-    )
-    database_exists = "1" in select_result.stdout
-    print(select_result.stderr)
-    print(select_result.stdout)
+#     select_result = local(
+#         "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_database \
+# WHERE datname='{}'\"".format(some_env.database_name),
+#         capture=True
+#     )
+#     database_exists = "1" in select_result.stdout
+#     print(select_result.stderr)
+#     print(select_result.stdout)
 
-    if database_exists:
-        if remove_existing:
-            postgres_command(
-                "DROP DATABASE {0}".format(some_env.database_name)
-            )
-        else:
-            raise ValueError('database {} already exists'.format(
-                some_env.database_name
-            ))
+#     if database_exists:
+#         if remove_existing:
+#             postgres_command(
+#                 "DROP DATABASE {0}".format(some_env.database_name)
+#             )
+#         else:
+#             raise ValueError('database {} already exists'.format(
+#                 some_env.database_name
+#             ))
 
-    postgres_command("CREATE DATABASE {0}".format(some_env.database_name))
-    postgres_command("GRANT ALL PRIVILEGES ON DATABASE {0} TO {1}".format(
-        some_env.database_name, DB_USER
-    ))
+#     postgres_command("CREATE DATABASE {0}".format(some_env.database_name))
+#     postgres_command("GRANT ALL PRIVILEGES ON DATABASE {0} TO {1}".format(
+#         some_env.database_name, DB_USER
+#     ))
 
 
 def postgres_load_database(backup_name, new_env):
+    """
+    !!!
+    !!!
+    IMPORTANT: This is the command to roll back to a release backup database
+    !!!
+    !!!
+    """
     print("Loading the database {}".format(new_env.database_name))
     local("cat {0} | gunzip | sudo -u postgres psql -d {1}".format(
         backup_name,
@@ -398,11 +410,6 @@ def services_create_upstart_conf(new_env):
 
     with open(upstart_conf, 'w') as f:
         f.write(output)
-
-
-def kill_running_processes():
-    with settings(warn_only=True):
-        local("sudo pkill super; pkill gunic; pkill celery;")
 
 
 def restart_supervisord(new_env):
@@ -627,46 +634,6 @@ def write_cron_appointment_load(new_env):
     ))
 
 
-def write_cron_imaging_load(new_env):
-    """
-    Creates a cron job that runs the imaging loader
-    """
-    print("Writing cron {}_imaging_load".format(PROJECT_NAME))
-    template = jinja_env.get_template(
-        'etc/conf_templates/cron_imaging_load.jinja2'
-    )
-    fabfile = os.path.abspath(__file__).rstrip("c")  # pycs won't cut it
-    output = template.render(
-        fabric_file=fabfile,
-        virtualenv=new_env.virtual_env_path,
-        unix_user=UNIX_USER,
-        project_dir=new_env.project_directory
-    )
-    cron_file = "/etc/cron.d/{0}_imaging_load".format(PROJECT_NAME)
-    local("echo '{0}' | sudo tee {1}".format(
-        output, cron_file
-    ))
-
-
-def write_cron_discharge_load(new_env):
-    """
-    Creates a cron job that runs the discharge summary loader
-    """
-    print("Writing cron {}_discharge_load".format(PROJECT_NAME))
-    template = jinja_env.get_template(
-        'etc/conf_templates/cron_discharge_load.jinja2'
-    )
-    fabfile = os.path.abspath(__file__).rstrip("c")  # pycs won't cut it
-    output = template.render(
-        fabric_file=fabfile,
-        virtualenv=new_env.virtual_env_path,
-        unix_user=UNIX_USER,
-        project_dir=new_env.project_directory
-    )
-    cron_file = "/etc/cron.d/{0}_discharge_load".format(PROJECT_NAME)
-    local("echo '{0}' | sudo tee {1}".format(
-        output, cron_file
-    ))
 
 
 def write_cron_icu_refresh(new_env):
@@ -944,91 +911,6 @@ def create_private_settings():
 def get_python_3():
     return local("which python3.6", capture=True)
 
-
-def _deploy(new_branch, backup_name=None, remove_existing=False):
-    if backup_name and not os.path.isfile(backup_name):
-        raise ValueError("unable to find backup {}".format(backup_name))
-
-    local("sudo rm /etc/cron.d/elcid*")
-
-    # the new env that is going to be live
-    new_env = Env(new_branch)
-
-    # the private settings
-    private_settings = get_private_settings()
-    env.host_string = private_settings["host_string"]
-
-    kill_running_processes()
-
-    install_apt_dependencies()
-
-    # Setup environment
-    pip_create_virtual_env(
-        new_env.virtual_env_path,
-        remove_existing,
-        python_path=get_python_3()
-    )
-    pip_set_project_directory(new_env)
-    pip_create_deployment_env(new_branch)
-
-    pip_install_requirements(new_env)
-
-    # create a database
-    postgres_create_database(new_env, remove_existing)
-    create_pg_pass(new_env, private_settings)
-
-    # load in a backup
-    if backup_name:
-        postgres_load_database(backup_name, new_env)
-
-    # create the local settings used by the django app
-    services_create_local_settings(new_env, private_settings)
-
-    services_create_gunicorn_conf(new_env)
-    services_create_upstart_conf(new_env)
-
-    # symlink the nginx conf
-    services_symlink_nginx(new_env)
-
-    # symlink the upstart conf
-#    services_symlink_upstart(new_env)
-
-    # symlink the celery conf
-    services_create_celery_conf(new_env)
-
-    # django setup
-    run_management_command("collectstatic --noinput", new_env)
-    run_management_command("migrate --noinput", new_env)
-    run_management_command("create_singletons", new_env)
-    run_management_command("load_lookup_lists", new_env)
-    restart_supervisord(new_env)
-    restart_nginx()
-
-    # Cron jobs
-    write_cron_lab_tests(new_env)
-    write_cron_lab_pre_load(new_env)
-
-    write_cron_sync_demographics(new_env)
-
-    write_cron_icu_load(new_env)
-    write_cron_icu_refresh(new_env)
-    write_cron_tb_patient_load(new_env)
-    write_cron_intrahospital_api(new_env)
-    write_cron_appointment_load(new_env)
-#    write_cron_imaging_load(new_env)
-    # write_cron_discharge_load(new_env)
-
-    write_cron_admission_load(new_env)
-    write_cron_disk_check(new_env)
-    write_cron_backup_size(new_env)
-
-    write_cron_covid(new_env)
-
-    write_cron_load_amt_handover(new_env)
-    write_cron_calculte_amt_dashboard(new_env)
-
-
-
 def infer_current_branch():
     current_dir = os.path.abspath(os.path.dirname(__file__))
     project_beginning = Env('').project_directory
@@ -1038,18 +920,6 @@ def infer_current_branch():
 with {1}'
         raise ValueError(er_temp.format(current_dir, project_beginning))
     return current_dir.replace(project_beginning, "")
-
-
-@task
-def deploy_test(backup_name=None):
-
-    new_branch = infer_current_branch()
-    _deploy(new_branch, backup_name, remove_existing=True)
-    new_status = run_management_command("status_report", Env(new_branch))
-    print("=" * 20)
-    print("new environment was")
-    print(new_status)
-    print("=" * 20)
 
 
 def validate_private_settings():
@@ -1064,7 +934,6 @@ def validate_private_settings():
             'we need the password of the backup server inorder to scp data to \
 a backup server'
         )
-
 
 def _roll_back(branch_name):
     roll_to_env = Env(branch_name)
@@ -1093,35 +962,23 @@ def roll_back_prod(branch_name):
     write_cron_backup(roll_to_env)
     write_cron_lab_tests(roll_to_env)
 
+### def create_pg_pass(env, additional_settings):
+###     pg_pass = os.path.join(os.environ["HOME"], ".pgpass")
 
-def install_apt_dependencies():
-    dependences = [
-#        ("smbclient", "2:4.3.11+dfsg-0ubuntu0.14.04.19"),
-#        ("python3.5", "3.5.2-2ubuntu0~16.04.4~14.04.1"),
-#        ("python3.5-dev", "3.5.2-2ubuntu0~16.04.4~14.04.1"),
-    ]
+###     print("Creating pg pass")
+###     template = jinja_env.get_template(
+###         'etc/conf_templates/pgpass.conf.jinja2'
+###     )
+###     output = template.render(
+###         db_name=env.database_name,
+###         db_user=DB_USER,
+###         db_password=additional_settings["db_password"]
+###     )
 
-    for dependency in dependences:
-        local("sudo apt-get install {}={}".format(*dependency))
+###     with open(pg_pass, 'w') as f:
+###         f.write(output)
 
-
-def create_pg_pass(env, additional_settings):
-    pg_pass = os.path.join(os.environ["HOME"], ".pgpass")
-
-    print("Creating pg pass")
-    template = jinja_env.get_template(
-        'etc/conf_templates/pgpass.conf.jinja2'
-    )
-    output = template.render(
-        db_name=env.database_name,
-        db_user=DB_USER,
-        db_password=additional_settings["db_password"]
-    )
-
-    with open(pg_pass, 'w') as f:
-        f.write(output)
-
-    os.chmod(pg_pass, stat.S_IRWXU)
+###     os.chmod(pg_pass, stat.S_IRWXU)
 
 
 @task
@@ -1158,6 +1015,7 @@ def deploy_prod(old_branch, old_database_name=None):
     name as normal.
     """
     new_branch = infer_current_branch()
+    backup_name = old_env.release_backup_name
     old_env = Env(old_branch)
     new_env = Env(new_branch)
 
@@ -1168,10 +1026,93 @@ def deploy_prod(old_branch, old_database_name=None):
     else:
         dbname = old_database_name
 
-    dump_database(old_env, dbname, old_env.release_backup_name)
+    dump_database(old_env, dbname, backup_name)
 
     old_status = run_management_command("status_report", old_env)
-    _deploy(new_branch, old_env.release_backup_name, remove_existing=False)
+
+    if backup_name and not os.path.isfile(backup_name):
+        raise ValueError("unable to find backup {}".format(backup_name))
+
+    # local("sudo rm /etc/cron.d/elcid*") # We have to move them out as it takes too long to do post backup.
+
+    # the new env that is going to be live
+    new_env = Env(new_branch)
+
+    # the private settings
+    private_settings = get_private_settings()
+    env.host_string = private_settings["host_string"]
+
+    with settings(warn_only=True):
+        local("sudo pkill super; pkill gunic; pkill celery;")
+
+    # Setup environment
+    pip_create_virtual_env(
+        new_env.virtual_env_path,
+        False,
+        python_path=get_python_3()
+    )
+    pip_set_project_directory(new_env)
+    pip_create_deployment_env(new_branch)
+
+    pip_install_requirements(new_env)
+
+    # create a database
+#    postgres_create_database(new_env, False)     This adds hours to the deployment time
+#    create_pg_pass(new_env, private_settings)    We don't really need to do this
+
+    # load in a backup
+    # if backup_name:
+    #     postgres_load_database(backup_name, new_env) # Takes hours, requires a huge free disk to have many copies
+
+    postgres_command(f"ALTER DATABASE {old} RENAME TO {new};".format(
+        old=old_env.database_name,
+        new=new_env.database_name
+    ))
+
+    # create the local settings used by the django app
+    services_create_local_settings(new_env, private_settings)
+
+    services_create_gunicorn_conf(new_env)
+    services_create_upstart_conf(new_env)
+
+    # symlink the nginx conf
+    services_symlink_nginx(new_env)
+
+    # symlink the upstart conf
+#    services_symlink_upstart(new_env)
+
+    # symlink the celery conf
+    services_create_celery_conf(new_env)
+
+    # django setup
+    run_management_command("collectstatic --noinput", new_env)
+    run_management_command("migrate --noinput", new_env)
+    run_management_command("create_singletons", new_env)
+    run_management_command("load_lookup_lists", new_env)
+    restart_supervisord(new_env)
+    restart_nginx()
+
+    # Cron jobs
+    write_cron_lab_tests(new_env)
+    write_cron_lab_pre_load(new_env)
+
+    write_cron_sync_demographics(new_env)
+
+    write_cron_icu_load(new_env)
+    write_cron_icu_refresh(new_env)
+    write_cron_tb_patient_load(new_env)
+    write_cron_intrahospital_api(new_env)
+    write_cron_appointment_load(new_env)
+
+    write_cron_admission_load(new_env)
+    write_cron_disk_check(new_env)
+    write_cron_backup_size(new_env)
+
+    write_cron_covid(new_env)
+
+    write_cron_load_amt_handover(new_env)
+    write_cron_calculte_amt_dashboard(new_env)
+
     write_cron_backup(new_env)
     new_status = run_management_command("status_report", new_env)
 
