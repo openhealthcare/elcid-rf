@@ -710,7 +710,7 @@ class AbstractTBObservation(fields.Model):
 
             episode = self.patient.episode_set.get(category_name='TB')
             mdt_reason = models.PatientConsultationReasonForInteraction.objects.get(
-                name='MDT meeting')
+                name='Microbacteria MDT')
             mdts = episode.patientconsultation_set.filter(
                 reason_for_interaction_fk=mdt_reason.pk
             )

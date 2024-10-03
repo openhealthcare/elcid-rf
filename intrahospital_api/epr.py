@@ -130,7 +130,7 @@ def write_clinical_advice(advice):
     if isinstance(advice, elcid_models.MicrobiologyInput):
         rfi = advice.reason_for_interaction
 
-        note_data['note_subject'] = f'elCID {advice.reason_for_interaction}'.strip(),
+        note_data['note_subject'] = f'elCID {advice.reason_for_interaction}'.strip()
 
         if rfi == advice.ICN_WARD_REVIEW_REASON_FOR_INTERACTION:
             note_data["note_type"] = "Infection Control Consult Note"
@@ -145,7 +145,7 @@ def write_clinical_advice(advice):
         )
 
     elif isinstance(advice, tb_models.PatientConsultation):
-        note_data['note_subject'] = f'{advice.reason_for_interaction}'.strip(),
+        note_data['note_subject'] = f'{advice.reason_for_interaction}'.strip()
         note_data["note_type"] = 'Respiratory Medicine Consult Note'
         note_data["note"] = render_tb_advice(advice)
     else:
