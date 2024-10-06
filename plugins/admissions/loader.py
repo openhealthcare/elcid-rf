@@ -302,7 +302,7 @@ def load_bed_status():
 
     api = ProdAPI()
 
-    status = api.execute_warehouse_query(
+    status = api.execute_rfl_reporting_query(
         Q_GET_ALL_BED_STATUS
     )
 

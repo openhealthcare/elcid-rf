@@ -582,6 +582,23 @@ class ProdApi(base_api.BaseApi):
         logger.debug(result)
         return result
 
+    def execute_rfl_reporting_query(self, query, params=None):
+        with pytds.connect(
+            self.reporting_settings["ip_address"],
+            self.reporting_settings["database"],
+            self.reporting_settings["username"],
+            self.reporting_settings["password"],
+            as_dict=True
+        ) as conn:
+            with conn.cursor() as cur:
+                logger.info(
+                    "Running RFL Reporting query {} {}".format(query, params)
+                )
+                cur.execute(query, params)
+                result = cur.fetchall()
+        logger.debug(result)
+        return result
+
     @property
     def pathology_demographics_query(self):
         return PATHOLOGY_DEMOGRAPHICS_QUERY.format(

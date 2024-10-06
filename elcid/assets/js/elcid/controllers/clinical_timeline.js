@@ -17,14 +17,18 @@ angular.module('opal.controllers').controller(
         };
 
         this.hasIcuOrObservation = function(item){
-            if(item.reason_for_interaction !== 'ICU round'){
-                return false;
-            }
-            var icuSize = _.size(item.micro_input_icu_round_relation.icu_round)
-            var observation = _.size(item.micro_input_icu_round_relation.observation)
-            if(icuSize || observation){
-                return true;
-            }
+            //
+            // This was removed, and this check is no longer useful.
+            // TODO Remove more permanently
+            //
+            // if(item.reason_for_interaction !== 'ICU round'){
+            //     return false;
+            // }
+            // var icuSize = _.size(item.micro_input_icu_round_relation.icu_round)
+            // var observation = _.size(item.micro_input_icu_round_relation.observation)
+            // if(icuSize || observation){
+            //     return true;
+            // }
             return false;
         }
 
