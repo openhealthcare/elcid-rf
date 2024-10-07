@@ -475,10 +475,12 @@ class PathologyRow(object):
 
 class ProdApi(base_api.BaseApi):
     def __init__(self):
-        self.hospital_settings = settings.HOSPITAL_DB
-        self.trust_settings = settings.TRUST_DB
+        self.hospital_settings  = settings.HOSPITAL_DB
+        self.trust_settings     = settings.TRUST_DB
         self.warehouse_settings = settings.WAREHOUSE_DB
-        self.epma_settings = settings.EPMA_DB
+        self.epma_settings      = settings.EPMA_DB
+        self.reporting_settings = settings.REPORTING_DB
+
         if not all([
             self.hospital_settings.get("ip_address"),
             self.hospital_settings.get("database"),
