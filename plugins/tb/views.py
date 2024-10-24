@@ -832,7 +832,7 @@ class OutstandingActionsMDT(LoginRequiredMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="Microbacteria MDT"
+            name=constants.MDT_NAME
         )
         patient_consultations = PatientConsultation.objects.exclude(
             plan=""
@@ -992,7 +992,7 @@ class AbstractClinicActivity(LoginRequiredMixin, TemplateView):
     @cached_property
     def mdt_meeting_qs(self):
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="Microbacteria MDT"
+            name=constants.MDT_NAME
         )
         return list(
             PatientConsultation.objects.filter(
@@ -1005,7 +1005,7 @@ class AbstractClinicActivity(LoginRequiredMixin, TemplateView):
     @cached_property
     def non_mdt_consultations(self):
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="Microbacteria MDT"
+            name=constants.MDT_NAME
         )
         return list(
             PatientConsultation.objects.filter(when__date__gte=self.start_date)
@@ -1028,7 +1028,7 @@ class ClinicActivity(AbstractClinicActivity):
 
     def mdt_count(self):
         mdt_meeting = PatientConsultationReasonForInteraction.objects.get(
-            name="Microbacteria MDT"
+            name=constants.MDT_NAME
         )
         return PatientConsultation.objects.filter(
                 when__date__gte=self.start_date,

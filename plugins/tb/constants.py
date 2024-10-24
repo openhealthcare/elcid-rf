@@ -34,3 +34,5 @@ TB_APPOINTMENT_CODES = (
 )
 TB_NEW_APPOINTMENT_CODES = [i for i in TB_APPOINTMENT_CODES if i.endswith("New")]
 TB_APPOINTMENT_REFRESH_TIME_FACT = "TB Appointment Refresh Seconds"
+
+MDT_NAME = 'Mycobacteria MDT'

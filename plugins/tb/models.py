@@ -2,13 +2,16 @@
 Models for tb
 """
 import datetime
+
 from django.db import models as fields
 from django.db.models import Max
-
-from elcid.models import PreviousMRN
 from opal.core.fields import ForeignKeyOrFreeText, enum
 from opal.core import lookuplists
 from opal import models
+
+from elcid.models import PreviousMRN
+
+from plugins.tb import constants
 
 
 class RecreationalDrug(lookuplists.LookupList):
@@ -710,7 +713,7 @@ class AbstractTBObservation(fields.Model):
 
             episode = self.patient.episode_set.get(category_name='TB')
             mdt_reason = models.PatientConsultationReasonForInteraction.objects.get(
-                name='Microbacteria MDT')
+                name=constants.MDT_NAME)
             mdts = episode.patientconsultation_set.filter(
                 reason_for_interaction_fk=mdt_reason.pk
             )
