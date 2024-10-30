@@ -278,7 +278,7 @@ class InfectionServiceTestSummaryApi(LoginRequiredViewset):
         ("CLOTTING SCREEN", ["INR"],),
         ("C-Reactive Protein", ["C Reactive Protein"]),
         ("Liver Profile", ["Alanine Aminotransferase", "Aspartate Aminotransfera", "Alkaline Phosphatase"]),
-        ("PROCALCITONIN", ["Procalcitonin"]),
+        ("Procalcitonin", ["Procalcitonin"]),
     ),)
 
     ANTIFUNGAL_TESTS = OrderedDict((
