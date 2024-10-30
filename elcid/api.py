@@ -276,8 +276,8 @@ class InfectionServiceTestSummaryApi(LoginRequiredViewset):
     RELEVANT_TESTS = OrderedDict((
         ("FULL BLOOD COUNT", ["WBC", "Lymphocytes", "Neutrophils"],),
         ("CLOTTING SCREEN", ["INR"],),
-        ("C REACTIVE PROTEIN", ["C Reactive Protein"]),
-        ("LIVER PROFILE", ["ALT", "AST", "Alkaline Phosphatase"]),
+        ("C-Reactive Protein", ["C Reactive Protein"]),
+        ("Liver Profile", ["Alanine Aminotransferase", "Aspartate Aminotransfera", "Alkaline Phosphatase"]),
         ("PROCALCITONIN", ["Procalcitonin"]),
     ),)
 
