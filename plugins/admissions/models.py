@@ -438,8 +438,9 @@ class BedStatus(models.Model):
         """
         result =  {v: getattr(self, k) for k, v in self.FIELDS_TO_SERIALIZE.items()}
 
-        if result['hospital'].endswith(' HOSPITAL'):
-            result['hospital'] = result['hospital'][:-9]
+        if 'hospital' in result and result['hospital']: # null entries introduced upstream Nov '24
+            if result['hospital'].endswith(' HOSPITAL'):
+                result['hospital'] = result['hospital'][:-9]
 
         if self.admission_date_time:
             try:
